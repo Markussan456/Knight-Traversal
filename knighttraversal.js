@@ -1,46 +1,43 @@
-let board = [];
-for (let y = 0; y < 8; y++) {
-  let row = [];
-  for (let x = 0; x < 8; x++) {
-    row.push([x, y]);
-  }
-  board.push(row);
-}
-let movenumber = 0;
-let usedmoves = [];
-function moveknight(x, y, endx, endy) {
-  if (!(y >= 0 && y < 8 && x >= 0 && x < 8)) return false; //checks if path is available
-  if (x === endx && y === endy) {
-    console.log("Reached point");
-    return true;
-  }
-  movenumber++; //increments
-  usedmoves.push([x, y]);
-  let possiblemoves = [
-    [x + 2, y + 1],
-    [x + 2, y - 1],
-    [x - 2, y + 1],
-    [x - 2, y - 1],
-    [x + 1, y + 2],
-    [x - 1, y + 2],
-    [x + 1, y - 2],
-    [x - 1, y - 2],
+// BFS version to find the shortest knight path
+function moveknight(startX, startY, endX, endY) {
+  const moves = [
+    [2, 1],
+    [2, -1],
+    [-2, 1],
+    [-2, -1],
+    [1, 2],
+    [-1, 2],
+    [1, -2],
+    [-1, -2],
   ];
-  let allowedmoves = [];
-  for (let i = 0; i < possiblemoves.length; i++) {
-    if (
-      possiblemoves[i][0] >= 0 && //checks which paths are available
-      possiblemoves[i][0] < 8 &&
-      possiblemoves[i][1] >= 0 &&
-      possiblemoves[i][1] < 8
-    ) {
-      allowedmoves.push(possiblemoves[i]); //then adds the available ones to the allowedmoves que
+  let que = [[startX, startY, [startX, startY], 0]];
+  let visited = [];
+  for (let i = 0; i < 8; i++) {
+    let row = [];
+    for (let j = 0; j < 8; j++) {
+      row.push(false);
+    }
+    visited.push(row);
+  }
+  visited[startX][startY] = true;
+  while (que.length > 0) {
+    const [x, y, path, steps] = que.shift();
+    if (x === endX && y === endY) {
+      return { path, steps };
+    } else {
+      for (movinsky of moves) {
+        let nx = x + movinsky[0];
+        let ny = y + movinsky[1];
+        if (nx >= 0 && nx < 8 && ny >= 0 && ny < 8 && !visited[nx][ny]) {
+          visited[nx][ny] = true;
+          que.push([nx, ny, [...path, [nx, ny]], steps + 1]);
+        }
+      }
     }
   }
-  console.log(allowedmoves);
-  for (let i = 0; i < allowedmoves.length; i++) {
-    //experimental
-    moveknight(allowedmoves[i][0], allowedmoves[i][1], endx, endy);
-  }
 }
-moveknight(0, 0);
+
+// Example usage
+const { path, steps } = moveknight(3, 3, 4, 3);
+console.log(path);
+console.log("This path took " + steps + " Steps");
